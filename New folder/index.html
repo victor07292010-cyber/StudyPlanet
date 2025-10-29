@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StudyPlanet — Learn • Play • Practice</title>
+  <meta name="description" content="An educational hub with subject notes, randomized mini‑quizzes, tools, and logic games (Wordle, Connections, Sudoku, Strands)." />
+  <!-- SEO / Social -->
+  <meta property="og:title" content="StudyPlanet — Learn • Play • Practice" />
+  <meta property="og:description" content="Notes, quizzes, tools, and games in one lightweight site." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://studyplanet3ducat10nyard.xyz" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Ccircle cx='64' cy='64' r='62' fill='%23121a33'/%3E%3Cpath d='M35 88c18-4 40-4 58 0' stroke='%237dd3fc' stroke-width='8' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='44' cy='50' r='6' fill='%23a78bfa'/%3E%3Ccircle cx='84' cy='50' r='6' fill='%23a78bfa'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Delius&display=swap" rel="stylesheet">
+  <style>
+    /* THEME (Light / Dark) */
+    :root{
+      --bg: #0b1020; --panel:#121a33; --muted:#a8b3e0; --text:#e8edff; --accent:#7dd3fc; --accent2:#a78bfa; --good:#34d399; --warn:#fbbf24; --bad:#f87171; --card:#0f1530; --border:#213066;
+    }
+    :root[data-theme="light"]{
+      --bg:#f5f7ff; --panel:#ffffff; --muted:#5b6690; --text:#0e183a; --accent:#0284c7; --accent2:#7c3aed; --good:#059669; --warn:#d97706; --bad:#dc2626; --card:#f9fbff; --border:#dbe4ff;
+    }
+    @media (prefers-color-scheme: light){ :root:not([data-theme]){ --bg:#f5f7ff; --panel:#ffffff; --muted:#5b6690; --text:#0e183a; --accent:#0284c7; --accent2:#7c3aed; --good:#059669; --warn:#d97706; --bad:#dc2626; --card:#f9fbff; --border:#dbe4ff; } }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:'Delius', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;background:var(--bg);color:var(--text)}
+
+    /* Fun background graphics */
+    .bg-decor{position:fixed;inset:0;z-index:-1;pointer-events:none;}
+    .bg-decor svg{position:absolute;filter:blur(40px);opacity:.28}
+    .blob1{top:-10vh;left:-10vw;width:50vw}
+    .blob2{bottom:-15vh;right:-10vw;width:45vw}
+    .griddots{position:absolute;inset:0;background-image:radial-gradient(currentColor 1px, transparent 1px);background-size:24px 24px;opacity:.08;color:var(--text)}
+
+    header{position:sticky;top:0;z-index:50;background:color-mix(in lch, var(--panel) 84%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+    .bar{max-width:1200px;margin:auto;display:flex;align-items:center;gap:14px;padding:12px 18px}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.3px}
+    .logo .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 18px color-mix(in srgb, var(--accent), transparent 60%)}
+    nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+    nav button{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:12px;cursor:pointer}
+    nav button.active{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb, var(--accent), transparent 70%) inset}
+
+    main{max-width:1200px;margin:24px auto;padding:0 18px 64px}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+    .card{grid-column:span 12;background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:0 8px 30px rgba(0,0,0,.15);overflow:hidden}
+    .card h2,.card h3{margin:0 0 8px}
+    .card .content{padding:18px}
+    .pill{display:inline-block;padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:color-mix(in srgb, var(--panel) 80%, transparent);color:var(--text);margin:4px 6px 0 0;font-size:12px}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media (max-width:900px){.two{grid-template-columns:1fr}}
+    .muted{color:var(--muted)}
+    .kpis{display:flex;gap:16px;flex-wrap:wrap}
+    .kpi{flex:1 1 160px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px}
+    .kpi b{display:block;font-size:20px;margin-top:6px}
+
+    /* Tabs inside sections */
+    .tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+    .tabs button{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:10px;cursor:pointer}
+    .tabs button.on{border-color:var(--accent)}
+
+    /* Quiz */
+    .quiz-q{margin:10px 0 6px;font-weight:600}
+    .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .choices button{padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;text-align:left}
+    .choices button.correct{border-color:var(--good);background:color-mix(in srgb, var(--good) 15%, var(--card))}
+    .choices button.wrong{border-color:var(--bad);background:color-mix(in srgb, var(--bad) 15%, var(--card))}
+    .quiz-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+
+    /* Tools */
+    .toolbox{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+    .tool{grid-column:span 12;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px}
+    @media (min-width:900px){.tool.half{grid-column:span 6}}
+    input,select,textarea{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px;width:100%}
+    label{font-size:12px;color:var(--muted)}
+    .row{display:flex;gap:10px;align-items:center}
+
+    /* Games */
+    .game-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+    .game{grid-column:span 12;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+    @media (min-width:900px){.game.half{grid-column:span 6}}
+
+    /* Wordle */
+    .board{display:grid;grid-template-rows:repeat(6,1fr);gap:6px;max-width:320px}
+    .rowg{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+    .cell{width:58px;height:58px;border-radius:8px;border:1px solid var(--border);display:grid;place-items:center;font-weight:700;font-size:22px;background:var(--card);color:var(--text)}
+    .cell.ok{background:#18552e;border-color:var(--good)}
+    .cell.meh{background:#4a3d16;border-color:var(--warn)}
+    .cell.no{background:#3a1520;border-color:var(--bad)}
+
+    /* Connections */
+    .conn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:520px}
+    .conn-grid button{padding:14px;border-radius:12px;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer}
+    .conn-selected{outline:2px solid var(--accent)}
+
+    /* Sudoku */
+    .sudoku{display:grid;grid-template-columns:repeat(9,40px);gap:3px}
+    .sudoku input{width:40px;height:40px;text-align:center;font-size:18px}
+    .sudoku .boldR{border-bottom:2px solid var(--border)}
+    .sudoku .boldC{border-right:2px solid var(--border)}
+
+    /* Strands */
+    .strands{display:grid;grid-template-columns:repeat(6,40px);gap:6px}
+    .strands button{width:40px;height:40px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer}
+    .badge{display:inline-block;background:var(--panel);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:999px;font-size:12px}
+
+    .foot{margin-top:28px;color:var(--muted);font-size:12px}
+    a{color:var(--accent)}
+  </style>
+</head>
+<body>
+  <!-- Decorative background -->
+  <div class="bg-decor">
+    <div class="griddots"></div>
+    <svg class="blob1" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg"><g transform="translate(300,300)"><path d="M120,-180C168,-156,222,-132,242,-92C262,-52,248,3,222,43C196,83,158,108,120,138C82,168,44,204,4,206C-36,208,-76,176,-126,156C-176,136,-236,128,-262,96C-288,64,-280,8,-262,-46C-244,-100,-216,-152,-176,-184C-136,-216,-84,-228,-36,-226C12,-224,24,-208,64,-196C104,-184,120,-180,120,-180Z" fill="url(#g1)"/></g><defs><linearGradient id="g1" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#7dd3fc"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs></svg>
+    <svg class="blob2" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg"><g transform="translate(300,300)"><path d="M160,-186C207,-153,239,-102,251,-48C264,6,259,63,233,105C207,146,160,172,112,194C64,216,16,234,-30,236C-77,238,-154,223,-190,181C-226,140,-221,72,-212,9C-203,-53,-190,-106,-160,-141C-130,-176,-83,-192,-35,-203C13,-214,27,-220,69,-214C111,-208,160,-186,160,-186Z" fill="url(#g2)"/></g><defs><linearGradient id="g2" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#a78bfa"/><stop offset="1" stop-color="#7dd3fc"/></linearGradient></defs></svg>
+  </div>
+
+  <header>
+    <div class="bar">
+      <div class="logo"><span class="dot"></span>StudyPlanet</div>
+      <nav id="topnav"></nav>
+      <button id="themeBtn" title="Toggle theme">🌓</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="card" data-route="home">
+      <div class="content">
+        <h1 style="margin:0 0 8px">Learn • Play • Practice</h1>
+        <p class="muted">An educational hub with legit study notes, randomized mini‑quizzes, powerful tools, and fun daily logic games — all in one page.</p>
+        <div class="kpis" style="margin-top:12px">
+          <div class="kpi"><span class="muted">Subjects</span><b>Math • History • English • Science</b></div>
+          <div class="kpi"><span class="muted">Games</span><b>Wordle • Connections • Sudoku • Strands</b></div>
+          <div class="kpi"><span class="muted">Tools</span><b>Desmos • Dictionary • OCR Lens • AI Tutor*</b></div>
+        </div>
+        <p class="foot">*AI Tutor requires a Netlify Function (sample included below in comments).</p>
+      </div>
+    </section>
+
+    <!-- Notes per subject (each has 10 paragraphs) -->
+    <section class="card" data-route="math"><div class="content"><h2>Math Notes</h2><div id="mathNotes" class="two"></div></div></section>
+    <section class="card" data-route="history"><div class="content"><h2>History Notes</h2><div id="historyNotes" class="two"></div></div></section>
+    <section class="card" data-route="english"><div class="content"><h2>English Notes</h2><div id="englishNotes" class="two"></div></div></section>
+    <section class="card" data-route="science"><div class="content"><h2>Science Notes</h2><div id="scienceNotes" class="two"></div></div></section>
+
+    <!-- Quizzes -->
+    <section class="card" data-route="quizzes">
+      <div class="content">
+        <h2>Mini‑Quizzes (10 random Qs each)</h2>
+        <div class="tabs" id="quizTabs"></div>
+        <div id="quizPanel"></div>
+      </div>
+    </section>
+
+    <!-- Tools -->
+    <section class="card" data-route="tools">
+      <div class="content">
+        <h2>Study Tools</h2>
+        <div class="toolbox">
+          <div class="tool half">
+            <h3>Desmos Calculator</h3>
+            <iframe title="Desmos Graphing Calculator" src="https://www.desmos.com/calculator" style="width:100%;height:420px;border:1px solid var(--border);border-radius:12px"></iframe>
+          </div>
+          <div class="tool half">
+            <h3>Dictionary Lookup</h3>
+            <div class="row" style="gap:8px;margin:8px 0 12px">
+              <input id="dictInput" placeholder="Type a word…"/>
+              <button onclick="lookupWord()">Define</button>
+            </div>
+            <div id="dictResult" class="muted">Powered by <a href="https://dictionaryapi.dev" target="_blank">Free Dictionary API</a>.</div>
+          </div>
+          <div class="tool half">
+            <h3>Image Text (OCR) — “Lens‑style”</h3>
+            <p class="muted">Extract text locally in your browser. For Google Lens, use <a href="https://lens.google.com/upload" target="_blank">Lens Upload</a>.</p>
+            <input type="file" id="ocrFile" accept="image/*"/>
+            <div style="margin-top:8px" class="row">
+              <button onclick="runOCR()">Extract Text</button>
+              <a class="badge" href="https://lens.google.com/upload" target="_blank">Open Google Lens</a>
+            </div>
+            <pre id="ocrOut" style="white-space:pre-wrap;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px;min-height:80px;margin-top:10px"></pre>
+          </div>
+          <div class="tool half">
+            <h3>AI Tutor (plug‑in ready)</h3>
+            <p class="muted">Uploads images or asks factual questions. <b>Set</b> <code>AI_BACKEND_URL</code> to your Netlify Function.</p>
+            <textarea id="aiInput" placeholder="Ask a question (with sources)…" rows="3"></textarea>
+            <div class="row" style="margin:8px 0"><input type="file" id="aiImage" accept="image/*"><button onclick="askAI()">Ask AI</button></div>
+            <div id="aiOut" class="muted">AI response appears here. Not enabled yet.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Games -->
+    <section class="card" data-route="games">
+      <div class="content">
+        <h2>Games</h2>
+        <div class="game-grid">
+          <div class="game half">
+            <h3>Daily Wordle</h3>
+            <div id="wordleBoard" class="board" aria-label="Wordle board"></div>
+            <div class="row" style="margin-top:8px;gap:8px">
+              <input id="wordleInput" maxlength="5" placeholder="Guess (5 letters)" />
+              <button onclick="submitWordle()">Submit</button>
+              <button onclick="resetWordle()">New</button>
+            </div>
+            <div id="wordleMsg" class="muted" style="margin-top:6px"></div>
+          </div>
+          <div class="game half">
+            <h3>Connections</h3>
+            <div id="connBoard" class="conn-grid" style="margin-bottom:8px"></div>
+            <button onclick="checkConnections()">Check Group</button>
+            <div id="connMsg" class="muted" style="margin-top:6px"></div>
+          </div>
+          <div class="game half">
+            <h3>Sudoku</h3>
+            <div id="sudoku" class="sudoku" style="margin-bottom:8px"></div>
+            <div class="row" style="gap:8px">
+              <button onclick="newSudoku()">New</button>
+              <button onclick="solveSudoku()">Solve</button>
+              <span id="sudokuMsg" class="muted"></span>
+            </div>
+          </div>
+          <div class="game half">
+            <h3>Strands — Clash Royale</h3>
+            <p class="muted">Find the hidden terms in the grid. Tap letters to build terms; submit when you see a known card/arena/clan term.</p>
+            <div id="strands" class="strands" style="margin-bottom:8px"></div>
+            <div class="row" style="gap:8px">
+              <button onclick="submitStrands()">Submit Word</button>
+              <button onclick="shuffleStrands()">Shuffle</button>
+              <span id="strandsMsg" class="muted"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  // THEME TOGGLE
+  const themeBtn = document.getElementById('themeBtn');
+  const savedTheme = localStorage.getItem('sp_theme');
+  if(savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+  themeBtn.onclick = () => {
+    const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', cur);
+    localStorage.setItem('sp_theme', cur);
+  };
+
+  // ROUTER / NAV (add subject tabs in top nav)
+  const routes = [
+    {id:'home', label:'Home'},
+    {id:'math', label:'Math'},
+    {id:'history', label:'History'},
+    {id:'english', label:'English'},
+    {id:'science', label:'Science'},
+    {id:'quizzes', label:'Quizzes'},
+    {id:'tools', label:'Tools'},
+    {id:'games', label:'Games'},
+  ];
+  const topnav = document.getElementById('topnav');
+  routes.forEach((r,i)=>{
+    const b=document.createElement('button'); b.textContent=r.label; if(i===0) b.classList.add('active');
+    b.onclick=()=>navigate(r.id,b);
+    topnav.appendChild(b);
+  });
+  const cards = Array.from(document.querySelectorAll('main > section'));
+  function navigate(id, btn){
+    document.querySelectorAll('header nav button').forEach(x=>x.classList.remove('active'));
+    btn.classList.add('active');
+    cards.forEach(c=>c.style.display = (c.getAttribute('data-route')===id ? 'block' : 'none'));
+    history.replaceState(null,'','#'+id);
+  }
+  // initial route
+  cards.forEach(c=>c.style.display='none');
+  let start = location.hash.replace('#','') || 'home';
+  const startBtn = Array.from(topnav.children).find(b=>b.textContent===routes.find(r=>r.id===start)?.label) || topnav.children[0];
+  startBtn.click();
+
+  // SUBJECT NOTES CONTENT
+  const NOTES = {
+    Math: [
+      'Numbers & Operations: integers, fractions, decimals; prime vs composite; order of operations (PEMDAS).',
+      'Algebra Basics: variables, expressions, equations, inequalities; solving one- and two-step equations.',
+      'Functions: input-output rules, function notation f(x), linear vs nonlinear behavior.',
+      'Linear Relationships: slope-intercept y=mx+b; slope as rate of change; graphing lines.',
+      'Systems of Equations: substitution, elimination, graphing; intersections as solutions.',
+      'Exponents & Radicals: exponent laws; scientific notation; simplifying radicals.',
+      'Polynomials: add/subtract/multiply; special products; factoring trinomials.',
+      'Quadratics: standard/vertex/factored forms; completing the square; discriminant; roots.',
+      'Geometry: angles, triangles, Pythagorean theorem, area/volume; similarity & congruence.',
+      'Statistics & Probability: center/spread; box plots; two-way tables; simple/compound probability.'
+    ],
+    History: [
+      'Historical Thinking: sourcing, contextualization, corroboration; cause/effect; continuity & change.',
+      'Ancient Civilizations: Mesopotamia, Egypt, Indus, China; rivers enabling agriculture/trade.',
+      'Classical Eras: Greece and Rome; democracy and republics; law, engineering, culture spread.',
+      'Middle Ages: feudalism, Church, Crusades; trade networks and urban growth.',
+      'Renaissance & Reformation: humanism, art, science; religious upheavals reshaping Europe.',
+      'Age of Exploration: motives, Columbian Exchange, global trade, and consequences.',
+      'Revolutions: American, French, Latin American—liberty, equality, nationalism.',
+      'Industrialization: factories, urbanization, labor movements; tech innovations.',
+      'World Wars & Cold War: alliances, total war, decolonization, ideological conflict.',
+      'Contemporary World: globalization, digital age, environment, human rights.'
+    ],
+    English: [
+      'Reading Strategies: previewing, annotating, questioning, summarizing to build comprehension.',
+      'Fiction Elements: plot, setting, character, conflict, theme; POV and tone.',
+      'Nonfiction & Rhetoric: purpose, audience, ethos/pathos/logos; claims, evidence, reasoning.',
+      'Vocabulary: context clues; roots/prefixes/suffixes; denotation vs connotation.',
+      'Grammar: parts of speech, sentence types, agreement, punctuation, clarity.',
+      'Writing Process: plan, draft, revise, edit; thesis and topic sentences.',
+      'Literary Devices: imagery, metaphor, symbolism, irony, allusion, poetry sound devices.',
+      'Research: credible sources, citations, paraphrase vs quote, MLA/APA basics.',
+      'Speaking & Listening: organization, eye contact, visuals, Q&A, collaboration.',
+      'Media Literacy: bias, reliability, fallacies; evaluating claims in digital texts.'
+    ],
+    Science: [
+      'Scientific Method: observation, hypothesis, experiment, analysis, conclusion; variables/controls.',
+      'Matter & Atoms: states, properties, elements, compounds, mixtures; atomic structure.',
+      'Forces & Motion: Newton’s laws, acceleration, momentum, energy transfer, work and power.',
+      'Waves: sound, light, EM spectrum; frequency/wavelength/amplitude; reflection/refraction.',
+      'Earth Systems: geo/hydro/atmo/biosphere; water, carbon, nitrogen cycles.',
+      'Weather & Climate: fronts, pressure systems, ocean currents; greenhouse effect; climate change.',
+      'Cell Biology: organelles, membranes, diffusion/osmosis; mitosis vs meiosis; DNA → protein.',
+      'Ecology: ecosystems, food webs, biodiversity, carrying capacity, human impacts.',
+      'Chemistry: periodic trends; ionic/covalent bonding; reactions; acids/bases; pH.',
+      'Astronomy: Sun–Earth–Moon, planets, stars, galaxies; stellar life cycles; redshift.'
+    ]
+  };
+  function mountNotes(id, arr){ const root=document.getElementById(id); arr.forEach((p,i)=>{ const d=document.createElement('div'); d.innerHTML=`<span class='pill'>Topic ${i+1}</span><p style='margin:6px 0 0'>${p}</p>`; root.appendChild(d); }); }
+  mountNotes('mathNotes', NOTES.Math);
+  mountNotes('historyNotes', NOTES.History);
+  mountNotes('englishNotes', NOTES.English);
+  mountNotes('scienceNotes', NOTES.Science);
+
+  // QUIZ ENGINE (10 random Qs from bank; banks can be expanded easily)
+  const QUIZ_BANK = {
+    Math: [
+      {q:'What is the slope of y=3x−5?',a:['3','-5','5','-3'],c:0},
+      {q:'(2^3)·(2^4)=?',a:['2^7','2^12','2^1','14'],c:0},
+      {q:'Solve: 3x+6=0',a:['x=-2','x=2','x=3','x=-3'],c:0},
+      {q:'Distance formula uses…',a:['Pythagorean theorem','SOH-CAH-TOA','Binomial theorem','Law of Sines'],c:0},
+      {q:'Mean of 2,4,10?',a:['6','5.33','8','4'],c:0},
+      {q:'Quadratic formula solves ax^2+bx+c=0 for…',a:['x','a','b','c'],c:0},
+      {q:'Simplify √(49)',a:['7','14','9','√7'],c:0},
+      {q:'Line through (0,2) slope -1 has y-intercept…',a:['2','-1','0','-2'],c:0},
+      {q:'System solution means the point where lines…',a:['intersect','are parallel','are vertical','are undefined'],c:0},
+      {q:'Median of 1,5,9,11,20?',a:['9','11','5','1'],c:0},
+      {q:'(x+3)(x+2)=?',a:['x^2+5x+6','x^2+6x+5','x^2+5x+5','x^2+3x+2'],c:0},
+      {q:'A 3-4-5 triangle has hypotenuse…',a:['5','4','3','6'],c:0},
+      {q:'log10(100)=',a:['2','10','100','1/2'],c:0},
+      {q:'Area of a circle r=3',a:['9π','6π','3π','18π'],c:0},
+      {q:'Solve: |x-5|=2',a:['x=3 or 7','x=2 or -2','x=7 only','x=3 only'],c:0},
+    ],
+    History: [
+      {q:'Roman Republic featured…',a:['checks and balances','absolute monarchy','theocracy','serfdom'],c:0},
+      {q:'Columbian Exchange is…',a:['transfer of plants/animals/diseases','slave trade','currency exchange','naval warfare'],c:0},
+      {q:'Renaissance emphasized…',a:['humanism','isolationism','nomadism','animism'],c:0},
+      {q:'Industrialization first took off in…',a:['Britain','China','Brazil','Russia'],c:0},
+      {q:'WWI spark: assassination of…',a:['Franz Ferdinand','Julius Caesar','Gandhi','Napoleon'],c:0},
+      {q:'Cold War mainly between…',a:['USA & USSR','USA & China','UK & Germany','France & Spain'],c:0},
+      {q:'Magna Carta (1215) limited…',a:['the king’s power','peasants’ rights','trade routes','the Church’s existence'],c:0},
+      {q:'Silk Road connected…',a:['East Asia & Mediterranean','Africa & Antarctica','Australia & Europe','Arctic & Antarctic'],c:0},
+      {q:'Printing press inventor…',a:['Gutenberg','Da Vinci','Magellan','Marco Polo'],c:0},
+      {q:'“New World” refers to…',a:['the Americas','Africa','Europe','Oceania'],c:0},
+    ],
+    English: [
+      {q:'A thesis is…',a:['central claim','first quote','citation style','metaphor'],c:0},
+      {q:'Ethos appeals to…',a:['credibility','emotion','logic','timing'],c:0},
+      {q:'A simile uses…',a:['like/as','is','!','?'],c:0},
+      {q:'Denotation means…',a:['dictionary meaning','emotional meaning','opposite','sound effect'],c:0},
+      {q:'MLA in‑text example…',a:['(Author 12)','[Author:12]','{12 Author}','(MLA 12)'],c:0},
+      {q:'Tone is the author’s…',a:['attitude','setting','plot','theme'],c:0},
+      {q:'Alliteration repeats…',a:['initial consonant sounds','vowels only','rhymes only','syllables only'],c:0},
+      {q:'Revision focuses on…',a:['ideas/organization','spelling only','fonts','word count only'],c:0},
+      {q:'“They’re” = …',a:['they are','their','there','they were'],c:0},
+      {q:'A credible source is…',a:['reliable and accurate','a meme','anonymous rumor','fiction'],c:0},
+    ],
+    Science: [
+      {q:'Protons have…',a:['positive charge','negative charge','neutral charge','no mass'],c:0},
+      {q:'Newton’s 3rd law: every action…',a:['equal and opposite reaction','causes gravity','heats objects','stops motion'],c:0},
+      {q:'Photosynthesis occurs in…',a:['chloroplasts','mitochondria','nucleus','ribosomes'],c:0},
+      {q:'Boiling point of water (sea level)…',a:['100°C','0°C','50°C','212°C only'],c:0},
+      {q:'Lower pH means…',a:['stronger acid','weaker acid','more basic','neutral'],c:0},
+      {q:'DNA stands for…',a:['deoxyribonucleic acid','dinucleotide acid','dioxyribo acid','ribosomal acid'],c:0},
+      {q:'Earth’s primary energy source…',a:['the Sun','geothermal','tides','fire'],c:0},
+      {q:'Sound needs a…',a:['medium','vacuum','mirror','battery'],c:0},
+      {q:'Ionic bonds involve…',a:['electron transfer','electron sharing','neutrons','protons'],c:0},
+      {q:'Mitosis results in…',a:['two identical cells','four gametes','RNA only','one large cell'],c:0},
+    ],
+  };
+  const quizTabs = document.getElementById('quizTabs');
+  const quizPanel = document.getElementById('quizPanel');
+  ['Math','History','English','Science'].forEach((sub,i)=>{
+    const b=document.createElement('button'); b.textContent=sub; if(i===0) b.classList.add('on');
+    b.onclick=()=>{ document.querySelectorAll('#quizTabs button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); startQuiz(sub); };
+    quizTabs.appendChild(b);
+  });
+  function sample(arr,n){ const copy=[...arr]; const out=[]; while(out.length<n && copy.length){ out.push(copy.splice(Math.floor(Math.random()*copy.length),1)[0]); } return out; }
+  function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+  function startQuiz(sub){
+    const chosen = sample(QUIZ_BANK[sub], 10);
+    let idx = 0, score = 0;
+    quizPanel.innerHTML = '';
+    const qEl = document.createElement('div');
+    const footer = document.createElement('div'); footer.className='quiz-footer';
+    const nextBtn = document.createElement('button'); nextBtn.textContent='Next'; nextBtn.disabled=true;
+    const status = document.createElement('div'); status.className='muted';
+    footer.append(nextBtn,status);
+
+    function render(){
+      nextBtn.disabled=true;
+      const {q,a,c} = chosen[idx];
+      qEl.innerHTML = `<div class='quiz-q'>${idx+1}. ${q}</div>`;
+      const ch = document.createElement('div'); ch.className='choices';
+      const order = shuffle(a.map((t,i)=>({t,i})));
+      order.forEach(({t,i})=>{
+        const b=document.createElement('button'); b.textContent=t;
+        b.onclick=()=>{
+          ch.querySelectorAll('button').forEach(x=>x.disabled=true);
+          if(i===c){ b.classList.add('correct'); score++; } else { b.classList.add('wrong'); ch.children[order.findIndex(o=>o.i===c)].classList.add('correct'); }
+          nextBtn.disabled=false;
+        };
+        ch.appendChild(b);
+      });
+      qEl.appendChild(ch);
+      status.textContent = `Score: ${score}/${idx}`;
+    }
+    nextBtn.onclick=()=>{ idx++; if(idx<chosen.length){ render(); } else { qEl.innerHTML = `<h3>Done!</h3><p>You scored <b>${score}</b> / ${chosen.length}.</p><button onclick=\"startQuiz('${sub}')\">Try another set</button>`; footer.remove(); }
+    };
+    quizPanel.append(qEl,footer);
+    render();
+  }
+  startQuiz('Math');
+
+  // Dictionary
+  async function lookupWord(){
+    const w = document.getElementById('dictInput').value.trim();
+    const out = document.getElementById('dictResult');
+    if(!w){ out.textContent='Type a word first.'; return; }
+    out.textContent='Looking up…';
+    try{
+      const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(w)}`);
+      const data = await r.json();
+      if(!Array.isArray(data)){ out.textContent = 'No definition found.'; return; }
+      const defs = data[0].meanings.flatMap(m=>m.definitions.map(d=>`• ${d.definition}`)).slice(0,5).join('
+');
+      out.textContent = `${data[0].word} — ${(data[0].phonetic||'').toString()}
+${defs}`;
+    }catch(e){ out.textContent = 'Lookup failed. Try again later.'; }
+  }
+
+  // OCR — lazy‑load Tesseract only when used
+  async function runOCR(){
+    const f = document.getElementById('ocrFile').files[0];
+    const out = document.getElementById('ocrOut');
+    if(!f){ out.textContent='Choose an image first.'; return; }
+    out.textContent='Loading OCR…';
+    const tesseract = await import('https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js');
+    out.textContent='Reading text… (runs locally)';
+    const imgURL = URL.createObjectURL(f);
+    const worker = await tesseract.Tesseract.createWorker('eng');
+    const { data:{ text } } = await worker.recognize(imgURL);
+    await worker.terminate();
+    out.textContent = text.trim()||'(No text detected)';
+  }
+
+  // AI Tutor (requires backend)
+  const AI_BACKEND_URL = '';// '/.netlify/functions/ai-tutor' when enabled
+  async function askAI(){
+    const q = document.getElementById('aiInput').value.trim();
+    const file = document.getElementById('aiImage').files[0];
+    const out = document.getElementById('aiOut');
+    if(!q && !file){ out.textContent = 'Enter a question or attach an image.'; return; }
+    if(!AI_BACKEND_URL){ out.innerHTML = 'Not configured. Set <code>AI_BACKEND_URL</code> to your Netlify Function path.'; return; }
+    let imageBase64 = '';
+    if(file){ const buf = await file.arrayBuffer(); imageBase64 = btoa(String.fromCharCode(...new Uint8Array(buf))); }
+    out.textContent='Thinking…';
+    try{
+      const r = await fetch(AI_BACKEND_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:q,imageBase64})});
+      const data = await r.json();
+      out.textContent = data.text || JSON.stringify(data);
+    }catch(e){ out.textContent='AI request failed.'; }
+  }
+
+  // WORDLE
+  const WORDS = ['APPLE','TEACH','GRAPH','DELTA','EARTH','LIGHT','NERVE','PLANT','QUICK','RATIO','SLOPE','IONIC','FORCE','VALUE','WATER'];
+  let answer = WORDS[Math.floor((Date.now()/86400000)%WORDS.length)|0];
+  let row=0; const board = document.getElementById('wordleBoard');
+  for(let r=0;r<6;r++){ const rr=document.createElement('div'); rr.className='rowg'; for(let c=0;c<5;c++){ const cell=document.createElement('div'); cell.className='cell'; cell.id=`w${r}${c}`; rr.appendChild(cell);} board.appendChild(rr); }
+  function paintRow(r, guess){
+    const A = answer.split(''); const G = guess.split('');
+    const used = Array(5).fill(false);
+    for(let i=0;i<5;i++){ const cell=document.getElementById(`w${r}${i}`); cell.textContent=G[i]; if(G[i]===A[i]){ cell.classList.add('ok'); used[i]=true; G[i] = '*'; } }
+    for(let i=0;i<5;i++){ const cell=document.getElementById(`w${r}${i}`); if(cell.classList.contains('ok')) continue; const idx = A.findIndex((ch,j)=>!used[j] && ch===G[i]); if(idx>-1){ cell.classList.add('meh'); used[idx]=true; } else { cell.classList.add('no'); }}
+  }
+  function submitWordle(){
+    const inp = document.getElementById('wordleInput'); const g = inp.value.trim().toUpperCase(); const msg=document.getElementById('wordleMsg');
+    if(g.length!==5){ msg.textContent='Enter a 5‑letter word.'; return; }
+    if(row>=6){ msg.textContent='Game over. Click New.'; return; }
+    paintRow(row,g); if(g===answer){ msg.textContent='You win! 🎉'; } else if(++row>=6){ msg.textContent=`Answer: ${answer}`; } else { msg.textContent='Keep going…'; }
+    inp.value='';
+  }
+  function resetWordle(){
+    answer = WORDS[Math.floor(Math.random()*WORDS.length)]; row=0; document.getElementById('wordleMsg').textContent='';
+    for(let r=0;r<6;r++){ for(let c=0;c<5;c++){ const cell=document.getElementById(`w${r}${c}`); cell.className='cell'; cell.textContent=''; } }
+  }
+
+  // CONNECTIONS
+  const CONNECTIONS = [{groups:[
+    {name:'Quadrilaterals', words:['SQUARE','RECTANGLE','TRAPEZOID','PARALLELOGRAM']},
+    {name:'Planets', words:['EARTH','MARS','VENUS','JUPITER']},
+    {name:'Punctuation', words:['COMMA','PERIOD','COLON','SEMICOLON']},
+    {name:'Energy Forms', words:['HEAT','LIGHT','SOUND','ELECTRIC']},
+  ]}];
+  let connState = null;
+  function newConnections(){
+    const pick = CONNECTIONS[Math.floor(Math.random()*CONNECTIONS.length)];
+    const words = pick.groups.flatMap(g=>g.words);
+    shuffle(words);
+    connState = { pick, selected:new Set(), solved:[] };
+    const board = document.getElementById('connBoard'); board.innerHTML='';
+    words.forEach(w=>{
+      const b=document.createElement('button'); b.textContent=w;
+      b.onclick=()=>{ if(b.classList.toggle('conn-selected')) connState.selected.add(w); else connState.selected.delete(w); };
+      board.appendChild(b);
+    });
+    document.getElementById('connMsg').textContent='Select 4 related words and press Check.';
+  }
+  function checkConnections(){
+    if(connState.selected.size!==4){ document.getElementById('connMsg').textContent='Select exactly 4.'; return; }
+    const sel = Array.from(connState.selected);
+    const g = connState.pick.groups.find(gr=>gr.words.every(w=>sel.includes(w)));
+    if(g){
+      connState.solved.push(g.name);
+      document.getElementById('connMsg').textContent = `Correct: ${g.name}! (${connState.solved.length}/4)`;
+      const board = document.getElementById('connBoard');
+      Array.from(board.children).forEach(btn=>{ if(sel.includes(btn.textContent)) btn.remove(); btn.classList.remove('conn-selected'); });
+      connState.selected.clear();
+      if(connState.solved.length===4) document.getElementById('connMsg').textContent='All sets solved! 🎉';
+    } else {
+      document.getElementById('connMsg').textContent='Nope—try another combo.';
+    }
+  }
+  newConnections();
+
+  // SUDOKU
+  function createEmpty(){ return Array.from({length:9},()=>Array(9).fill(0)); }
+  function canPlace(g,r,c,n){ for(let i=0;i<9;i++){ if(g[r][i]===n||g[i][c]===n) return false; } const br=r-r%3, bc=c-c%3; for(let i=0;i<3;i++) for(let j=0;j<3;j++) if(g[br+i][bc+j]===n) return false; return true; }
+  function solve(g){ for(let r=0;r<9;r++){ for(let c=0;c<9;c++){ if(g[r][c]===0){ for(let n=1;n<=9;n++){ if(canPlace(g,r,c,n)){ g[r][c]=n; if(solve(g)) return true; g[r][c]=0; } } return false; } } } return true; }
+  function generateSudoku(){ const g=createEmpty();
+    for(let k=0;k<9;k+=3){ const nums=shuffle([1,2,3,4,5,6,7,8,9]); let t=0; for(let r=0;r<3;r++) for(let c=0;c<3;c++) g[k+r][k+c]=nums[t++]; }
+    solve(g);
+    const holes=45; let removed=0; while(removed<holes){ const r=Math.floor(Math.random()*9), c=Math.floor(Math.random()*9); if(g[r][c]!==0){ g[r][c]=0; removed++; } }
+    return g;
+  }
+  let sudokuSolution=null;
+  function renderSudoku(g){ const root=document.getElementById('sudoku'); root.innerHTML='';
+    for(let r=0;r<9;r++){
+      for(let c=0;c<9;c++){
+        const inp=document.createElement('input'); inp.maxLength=1; if(g[r][c]!==0){ inp.value=g[r][c]; inp.disabled=true; }
+        if((r+1)%3===0) inp.classList.add('boldR'); if((c+1)%3===0) inp.classList.add('boldC');
+        root.appendChild(inp);
+      }
+    }
+  }
+  function newSudoku(){ const g=generateSudoku(); const sol=JSON.parse(JSON.stringify(g)); solve(sol); sudokuSolution=sol; renderSudoku(g); document.getElementById('sudokuMsg').textContent='Fill the grid (1-9).'; }
+  function solveSudoku(){ if(!sudokuSolution) return; const inputs = document.querySelectorAll('#sudoku input'); let k=0; for(let r=0;r<9;r++) for(let c=0;c<9;c++){ inputs[k++].value = sudokuSolution[r][c]; } document.getElementById('sudokuMsg').textContent='Solved.'; }
+  newSudoku();
+
+  // STRANDS (Clash Royale)
+  const STRANDS_WORDS = ['PRINCE','GIANT','PEKKA','ARCHER','ZAP','FIREBALL','GOBLIN','MINER','MUSKETEER','TOWER','ELIXIR','ARENA'];
+  let strandsGrid = [];
+  function makeStrandsGrid(){
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const chosen = sample(STRANDS_WORDS, 6);
+    const grid = Array.from({length:6},()=>Array(6).fill(''));
+    chosen.forEach(w=>{
+      let placed=false, tries=0; w=w.toUpperCase();
+      while(!placed && tries++<100){ const dir=Math.random()<0.5?'H':'V'; const r=Math.floor(Math.random()*6), c=Math.floor(Math.random()*6); if(dir==='H' && c+w.length<=6){ let ok=true; for(let i=0;i<w.length;i++) if(grid[r][c+i] && grid[r][c+i]!==w[i]) ok=false; if(ok){ for(let i=0;i<w.length;i++) grid[r][c+i]=w[i]; placed=true; } }
+        if(dir==='V' && r+w.length<=6){ let ok=true; for(let i=0;i<w.length;i++) if(grid[r+i][c] && grid[r+i][c]!==w[i]) ok=false; if(ok){ for(let i=0;i<w.length;i++) grid[r+i][c]=w[i]; placed=true; } }
+      }
+    });
+    for(let r=0;r<6;r++) for(let c=0;c<6;c++) if(!grid[r][c]) grid[r][c] = letters[(Math.random()*26)|0];
+    return grid;
+  }
+  let strandsSel='';
+  function renderStrands(){ const root=document.getElementById('strands'); root.innerHTML='';
+    strandsGrid.forEach((row,ri)=>row.forEach((ch,ci)=>{
+      const b=document.createElement('button'); b.textContent=ch; b.onclick=()=>{ strandsSel += ch; b.disabled=true; };
+      root.appendChild(b);
+    }));
+    document.getElementById('strandsMsg').textContent='Tap letters to form Clash Royale terms, then Submit.';
+  }
+  function submitStrands(){
+    const msg=document.getElementById('strandsMsg');
+    const hit = STRANDS_WORDS.find(w=> strandsSel.includes(w));
+    if(hit){ msg.textContent = `Found: ${hit}!`; } else { msg.textContent='No match yet—keep searching.'; }
+    strandsSel='';
+    Array.from(document.getElementById('strands').children).forEach(b=>b.disabled=false);
+  }
+  function shuffleStrands(){ strandsGrid = makeStrandsGrid(); renderStrands(); }
+  shuffleStrands();
+  </script>
+
+  <!--
+  Netlify Function sample (ai-tutor.js):
+
+  exports.handler = async (event) => {
+    try {
+      const { prompt, imageBase64 } = JSON.parse(event.body||'{}');
+      // TODO: call your model provider (OpenAI vision/chat) with prompt + imageBase64
+      return { statusCode:200, body: JSON.stringify({ ok:true, text:'(AI placeholder) Add your API key + model in ai-tutor.js' }) };
+    } catch (e){
+      return { statusCode:500, body: JSON.stringify({ ok:false, error:String(e) }) };
+    }
+  };
+  -->
+</body>
+</html>
